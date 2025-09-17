@@ -13,19 +13,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Pobierz kod repozytorium
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2️⃣ Zainstaluj Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22'
 
+      # 3️⃣ Zainstaluj zależności
       - name: Install dependencies
         run: npm install
 
+      # 4️⃣ (Opcjonalnie) Cache dla npm
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # 5️⃣ Uruchom testy Cypress w trybie headless
       - name: Run Cypress tests
         uses: cypress-io/github-action@v5
         with:
           browser: electron
-          headless: true
+          headed: false
+
+      # 6️⃣ (Opcjonalnie) Nagranie testów i screenshoty
+      # Włącz tylko jeśli chcesz zapisywać artefakty
+      #- name: Upload Cypress screenshots
+      #  uses: actions/upload-artifact@v3
+      #  with:
+      #    name: cypress-screenshots
+      #    path: cypress/screenshots
